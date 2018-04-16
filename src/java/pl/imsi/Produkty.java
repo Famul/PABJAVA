@@ -7,6 +7,11 @@ package pl.imsi;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.sql.DataSource;
+import javax.naming.InitialContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -19,21 +24,31 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "Produkty", urlPatterns = {"/Produkty"})
 public class Produkty extends HttpServlet {
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Produkty</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Produkty at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+            InitialContext ctx = new InitialContext();
+            DataSource ds = (DataSource) ctx.lookup("jdbc/SQLServer");
+            Connection con = ds.getConnection();
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("select productid, productname from northwind.dbo.products");
+            response.setContentType("text/html");
+            response.getWriter().println("<html><body>");
+            while (rs.next()) {
+                response.getWriter().println(rs.getString("productid") + " "
+                        + rs.getString("productname") + "<br/>");
+            }
+            response.getWriter().println("</body></html>");
+
+            stmt.close();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -41,8 +56,6 @@ public class Produkty extends HttpServlet {
         processRequest(request, response);
     }
 
-
-    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
