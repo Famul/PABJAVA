@@ -1,0 +1,10 @@
+<%-- any content can be specified here e.g.: --%>
+<%@ page pageEncoding="UTF-8" %>
+<form action="j_security_check" method="POST">
+    Username:
+    <input type="text" name="j_username" /><br />
+    Password:
+    <input type="text" name="j_password" /><br />
+    <input type="submit" value="Login" /><br />
+</form>
+<a href="requestAccess.jsp">Request Access</a>
